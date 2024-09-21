@@ -35,7 +35,7 @@ class ServiceSeeder extends Seeder
            ],
         ];
         foreach($services as $service){
-            Service::create($services);
+            Service::create($service);
         }
     }
 }

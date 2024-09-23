@@ -8,3 +8,5 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 Route::apiResource('commentaires', CommentaireController::class);
+
+Route::post('/user/create',[AuthController::class,'register']);

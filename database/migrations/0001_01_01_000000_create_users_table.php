@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('adresse');
             $table->string('telephone', 9)->unique();
             $table->string('CNI', 13)->unique();
-            $table->enum('statut', ['employeur', 'demandeur_d_emploi', 'admin']);  
+            // $table->enum('statut', ['employeur', 'demandeur_d_emploi', 'admin']);  
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

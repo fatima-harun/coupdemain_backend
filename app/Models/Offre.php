@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Service;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -13,5 +12,15 @@ class Offre extends Model
     public function services()
     {
         return $this->belongsToMany(Service::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function employe()
+    {
+        return $this->belongsToMany(User::class);
     }
 }

@@ -17,8 +17,9 @@ return new class extends Migration
             $table->string('prenom');
             $table->string('email')->unique();
             $table->string('adresse');
-            $table->string('telephone', 9)->unique();
+            $table->string('telephone', 12)->unique();
             $table->string('CNI', 13)->unique();
+            $table->string('sexe');
             // $table->enum('statut', ['employeur', 'demandeur_d_emploi', 'admin']);  
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

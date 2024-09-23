@@ -11,7 +11,7 @@ class CompetenceController extends Controller
      */
     public function index()
     {
-        //
+        return Competence::all();
     }
 
     /**
@@ -19,7 +19,13 @@ class CompetenceController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate(
+            [
+                'libelle'=> 'required|string',
+            ]
+            
+         );
+         return Competence::create($request->all());
     }
 
     /**
@@ -27,7 +33,13 @@ class CompetenceController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $competence = Competences::find($id);
+
+        if(!$competence){
+            return response()->json(['message'=>'competence non trouvée'], 404);
+
+            return $competence;
+        }
     }
 
     /**
@@ -35,7 +47,19 @@ class CompetenceController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $competence = Competences::find($id);
+
+        if(!$competence){
+            return response()->json(['message'=>'competence non trouvée'], 404);
+        }
+
+        $request->validate(
+            [
+                'libelle'=> 'required|string',
+            ]
+         );
+         $competence->update($request->all());
+         return $competence;
     }
 
     /**
@@ -43,6 +67,12 @@ class CompetenceController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $competence = Competences::find($id);
+        if(!$competence){
+            return response()->json(['message'=>'competence non trouvé'], 404);
+        }
+
+        $competence->delete();
+        return response()->json(['message'=>'competence supprimé avec succés']);
     }
 }

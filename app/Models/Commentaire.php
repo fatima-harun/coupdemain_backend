@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
-class commentaires extends Model
+class Commentaire extends Model
 {
     use HasFactory;
-    protected $fillable = ['auteur', 'description'];
+    protected $fillable = ['description'];
 }

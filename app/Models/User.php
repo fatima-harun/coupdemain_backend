@@ -11,6 +11,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasRoles;
+    
+    public function services()
+    {
+        return $this->belongsToMany(Service::class);
+    }
 
     /**
      * The attributes that are mass assignable.

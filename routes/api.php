@@ -9,6 +9,10 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 Route::apiResource('commentaires', CommentaireController::class);
+Route::apiResource('competences', CompetenceController::class);
+Route::apiResource('experiences', ExperienceController::class);
+Route::apiResource('offres', OffreController::class);
+
 
 Route::post('/user/create/employeur', [AuthController::class, 'registeremployeur']);
 Route::post('/user/create/employe', [AuthController::class, 'registeremploye']);

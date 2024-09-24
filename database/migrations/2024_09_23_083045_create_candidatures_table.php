@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('candidatures', function (Blueprint $table) {
             $table->id();
             $table->enum('statut', ['en cours', 'rejeter', 'recruter']);
-            $table->date('datecandidature');
+            $table->date('date_candidature');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('offre_id');

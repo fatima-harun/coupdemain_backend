@@ -17,11 +17,11 @@ return new class extends Migration
             $table->string('lieu');
             $table->string('salaire');
             $table->string('horaire');
-            $table->enum('niveauexperience', ['débutant', 'intermediaire', 'avancé']); 
-            $table->number('nombrepostes');
-            $table->date('datedebut');
-            $table->date('datefin');
-            $table->date('datelimite');
+            $table->enum('niveau_experience', ['débutant', 'intermediaire', 'avancé']); 
+            $table->integer('nombre_postes');
+            $table->date('date_debut');
+            $table->date('date_fin');
+            $table->date('date_limite');
             $table->text('profil');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

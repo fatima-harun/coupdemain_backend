@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
             $table->text('message');
-            $table->date('datenotification');
             $table->timestamps();
             $table->unsignedBigInteger('candidature_id');
             $table->foreign('candidature_id')->references('id')->on('candidatures')->onDelete('cascade');

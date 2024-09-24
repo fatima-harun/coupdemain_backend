@@ -11,7 +11,7 @@ class ExperienceController extends Controller
      */
     public function index()
     {
-        //
+        return Experience::all();
     }
 
     /**
@@ -19,7 +19,14 @@ class ExperienceController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate(
+            [
+                'libelle'=> 'required|string',
+                'description'=> 'required|string',
+            ]
+            
+         );
+         return Experience::create($request->all());
     }
 
     /**
@@ -27,7 +34,13 @@ class ExperienceController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $experience = Experience::find($id);
+
+        if(!$experience){
+            return response()->json(['message'=>'competence non trouvée'], 404);
+
+            return $experience;
+        }
     }
 
     /**
@@ -35,7 +48,20 @@ class ExperienceController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $experience = Experience::find($id);
+
+        if(!$experience){
+            return response()->json(['message'=>'competence non trouvée'], 404);
+        }
+
+        $request->validate(
+            [
+                'libelle'=> 'required|string',
+                'description'=> 'required|text',
+            ]
+         );
+         $experience->update($request->all());
+         return $experience;
     }
 
     /**
@@ -43,6 +69,12 @@ class ExperienceController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $competence = Competences::find($id);
+        if(!$competence){
+            return response()->json(['message'=>'experience non trouvée'], 404);
+        }
+
+        $competence->delete();
+        return response()->json(['message'=>'experience supprimée avec succés']);
     }
 }

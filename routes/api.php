@@ -14,6 +14,5 @@ Route::apiResource('experiences', ExperienceController::class);
 Route::apiResource('offres', OffreController::class);
 
 
-Route::post('/user/create/employeur', [AuthController::class, 'registeremployeur']);
-Route::post('/user/create/employe', [AuthController::class, 'registeremploye']);
-Route::post('/user/create/admin', [AuthController::class, 'registeradmin']);
+Route::post('register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);

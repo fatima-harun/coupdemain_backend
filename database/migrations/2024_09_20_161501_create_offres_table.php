@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('lieu');
             $table->string('salaire');
             $table->string('horaire');
+            $table->enum('niveauexperience', ['débutant', 'intermediaire', 'avancé']); 
+            $table->number('nombrepostes');
             $table->date('datedebut');
             $table->date('datefin');
             $table->date('datelimite');

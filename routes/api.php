@@ -10,4 +10,6 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 Route::apiResource('commentaires', CommentaireController::class);
 
-Route::post('/user/create',[AuthController::class,'register']);
+Route::post('/user/create/employeur', [AuthController::class, 'registeremployeur']);
+Route::post('/user/create/employe', [AuthController::class, 'registeremploye']);
+Route::post('/user/create/admin', [AuthController::class, 'registeradmin']);

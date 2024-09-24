@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('salaire');
             $table->string('horaire');
             $table->date('datedebut');
+            $table->date('datefin');
+            $table->date('datelimite');
             $table->text('profil');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

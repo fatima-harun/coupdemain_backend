@@ -12,6 +12,7 @@ class Experience extends Model
     protected $fillable = [
         'libelle',
         'description',
+        'user_id'
       ];
 
     public function user()

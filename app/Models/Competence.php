@@ -11,7 +11,8 @@ class Competence extends Model
 
     protected $fillable = [
         'libelle',
-        'description'
+        'description',
+        'user_id'
     ];
     
     public function user()

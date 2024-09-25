@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OffreController;
+use App\Http\Controllers\CompetenceController;
+use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\CommentaireController;
 
 Route::get('/user', function (Request $request) {

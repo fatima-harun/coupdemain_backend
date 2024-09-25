@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Experience;
 use Illuminate\Http\Request;
 
 class ExperienceController extends Controller
@@ -51,13 +52,13 @@ class ExperienceController extends Controller
         $experience = Experience::find($id);
 
         if(!$experience){
-            return response()->json(['message'=>'competence non trouvée'], 404);
+            return response()->json(['message'=>'experience non trouvée'], 404);
         }
 
         $request->validate(
             [
-                'libelle'=> 'required|string',
-                'description'=> 'required|text',
+                // 'libelle'=> 'required|string',
+                // 'description'=> 'required|string',
             ]
          );
          $experience->update($request->all());
@@ -69,12 +70,11 @@ class ExperienceController extends Controller
      */
     public function destroy(string $id)
     {
-        $competence = Competences::find($id);
-        if(!$competence){
+        $experience = Experience::find($id);
+        if(!$experience){
             return response()->json(['message'=>'experience non trouvée'], 404);
         }
-
-        $competence->delete();
+        $experience->delete();
         return response()->json(['message'=>'experience supprimée avec succés']);
     }
 }

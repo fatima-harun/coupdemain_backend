@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Competence;
 use Illuminate\Http\Request;
 
 class CompetenceController extends Controller
@@ -33,7 +34,7 @@ class CompetenceController extends Controller
      */
     public function show(string $id)
     {
-        $competence = Competences::find($id);
+        $competence = Competence::find($id);
 
         if(!$competence){
             return response()->json(['message'=>'competence non trouvée'], 404);
@@ -47,7 +48,7 @@ class CompetenceController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $competence = Competences::find($id);
+        $competence = Competence::find($id);
 
         if(!$competence){
             return response()->json(['message'=>'competence non trouvée'], 404);
@@ -55,7 +56,8 @@ class CompetenceController extends Controller
 
         $request->validate(
             [
-                'libelle'=> 'required|string',
+                // 'libelle'=> 'required|string',
+                // 'description'=> 'required|string',
             ]
          );
          $competence->update($request->all());
@@ -67,7 +69,7 @@ class CompetenceController extends Controller
      */
     public function destroy(string $id)
     {
-        $competence = Competences::find($id);
+        $competence = Competence::find($id);
         if(!$competence){
             return response()->json(['message'=>'competence non trouvé'], 404);
         }

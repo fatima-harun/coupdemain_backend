@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Commentaire;
 use App\Models\Commentaires;
+use Illuminate\Http\Request;
 
 class CommentaireController extends Controller
 {
@@ -12,7 +13,7 @@ class CommentaireController extends Controller
      */
     public function index()
     {
-        return Commentaires::all();
+        return Commentaire::all();
     }
 
     /**
@@ -25,7 +26,7 @@ class CommentaireController extends Controller
                 'description'=> 'required|string|max:50',
             ]
          );
-         return Commentaires::create($request->all());
+         return Commentaire::create($request->all());
     }
 
     /**
@@ -33,7 +34,7 @@ class CommentaireController extends Controller
      */
     public function show(string $id)
     {
-        $commentaire = Commentaires::find($id);
+        $commentaire = Commentaire::find($id);
 
         if(!$commentaire){
             return response()->json(['message'=>'commentaire non trouvé'], 404);
@@ -47,7 +48,7 @@ class CommentaireController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $commentaire = Commentaires::find($id);
+        $commentaire = Commentaire::find($id);
 
         if(!$commentaire){
             return response()->json(['message'=>'commentaire non trouvé'], 404);
@@ -68,7 +69,7 @@ class CommentaireController extends Controller
      */
     public function destroy(string $id)
     {
-        $commentaire = Commentaires::find($id);
+        $commentaire = Commentaire::find($id);
         if(!$commentaire){
             return response()->json(['message'=>'commentaire non trouvé'], 404);
         }

@@ -22,7 +22,6 @@ class CommentaireController extends Controller
     {
         $request->validate(
             [
-                'auteur'=> 'required|string|max:20',
                 'description'=> 'required|string|max:50',
             ]
          );

@@ -22,12 +22,14 @@ class OffreController extends Controller
     {
         $request->validate(
             [
-                'description'=> 'required|string|max:200',
-                'lieu'=> 'required|string|max:20',
-                'salaire'=> 'required|string|max:20',
-                'horaire'=> 'required|string|max:10',
-                'datedebut'=> 'required|string|max:10',
-                'profil'=> 'required|string|max:300',
+                'description' => 'required|string|max:200',
+                'lieu' => 'required|string|max:20',
+                'salaire' => 'required|numeric|max:99999', 
+                'horaire' => 'required|string|max:10',
+                'date_debut' => 'required|date_format:Y-m-d', 
+                'date_fin' => 'nullable|date_format:Y-m-d', 
+                'date_limite' => 'nullable|date_format:Y-m-d', 
+                'profil' => 'required|string|max:300',
             ]
             
          );
@@ -61,12 +63,14 @@ class OffreController extends Controller
 
         $request->validate(
             [
-                'description'=> 'required|string|max:200',
-                'lieu'=> 'required|string|max:20',
-                'salaire'=> 'required|string|max:20',
-                'horaire'=> 'required|string|max:10',
-                'datedebut'=> 'required|string|max:10',
-                'profil'=> 'required|string|max:300',
+                // 'description' => 'required|string|max:200',
+                // 'lieu' => 'required|string|max:20',
+                // 'salaire' => 'required|numeric|max:99999', 
+                // 'horaire' => 'required|string|max:10',
+                // 'date_debut' => 'required|date_format:Y-m-d', 
+                // 'date_fin' => 'nullable|date_format:Y-m-d', 
+                // 'date_limite' => 'nullable|date_format:Y-m-d', 
+                // 'profil' => 'required|string|max:300',
             ]
          );
          $offre->update($request->all());
@@ -78,7 +82,7 @@ class OffreController extends Controller
      */
     public function destroy(string $id)
     {
-        $offre = Commentaires::find($id);
+        $offre = Offre::find($id);
         if(!$offre){
             return response()->json(['message'=>'offre non trouvé'], 404);
         }

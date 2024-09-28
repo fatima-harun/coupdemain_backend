@@ -14,4 +14,9 @@ class Service extends Model
     {
         return $this->belongsToMany(Offre::class);
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
+    }
 }

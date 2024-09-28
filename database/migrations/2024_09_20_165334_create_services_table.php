@@ -15,6 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('libelle');
             $table->string('description');
+            $table->unsignedBigInteger('offre_id');
+            $table->foreign('offre_id')->references('id')->on('offres')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

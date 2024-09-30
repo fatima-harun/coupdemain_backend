@@ -79,7 +79,7 @@ foreach ($permissions as $permission) {
         "se deconnecter",
       ],
 
-      'employe'=> [
+      'demandeur_d_emploi'=> [
         "s'inscrire",
         "se connecter",
         "rechercher des offres d'emploi",

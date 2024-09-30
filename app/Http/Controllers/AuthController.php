@@ -21,7 +21,7 @@ class AuthController extends Controller
             'telephone' => 'required|string|max:12|unique:users,telephone',
             'sexe' => 'required|in:Féminin,Masculin',
             'CNI' => 'required|string|max:13|unique:users,CNI',
-            'role' => 'required|in:employeur,demandeur_d_emploi,admin',
+            'role' => 'required|string|in:employeur,demandeur_d_emploi,admin',
             'password' => 'required|string|min:8',
         ]);
     }
@@ -68,7 +68,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Vérifier que le rôle envoyé est valide et l'assigner à l'utilisateur
+        
         $role = $request->role;
 
         if (in_array($role, ['employeur', 'demandeur_d_emploi', 'admin'])) {
@@ -96,40 +96,54 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $validator = validator($request->all(), [
-            'email' => 'required|email|string',
-            'password' => 'required|string|min:8',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
-        }
-
-        $credentials = $request->only('email', 'password');
-        $token = auth()->attempt($credentials);
-
-        if (!$token) {
-            return response()->json(['message' => 'Information de connexion incorrectes'], 401);
-        }
-
-        return response()->json([
-            "access_token" => $token,
-            "token_type" => "bearer",
-            "user" => auth()->user(),
-            "role" => auth()->user()->roles->first()->name ?? 'no_role',  
-            "expires_in" => env("JWT_TTL") * 60 . 'seconds'
-        ]);
         
+        $credentials = $request->only('email', 'password');
+
+        \Log::info('Tentative de connexion avec les identifiants : ', $credentials);
+
+
+        if (!$token = auth()->attempt($credentials)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        return $this->respondWithToken($token);
     }
 
-     // JWT
-    public function getJWTIdentifier()
+
+    protected function respondWithToken($token)
     {
-        return $this->getKey();
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth()->factory()->getTTL() * 60
+        ]);
     }
 
-    public function getJWTCustomClaims()
+
+    public function logout()
     {
-        return [];
+        auth()->logout();
+        return response()->json(["message" => "Déconnexion réussie"]);
     }
+    public function refresh()
+    {
+        try {
+            $token = auth()->refresh();
+            return response()->json([
+                "access_token" => $token,
+                "token_type" => "bearer",
+                "user" => auth()->user(),
+                "expires_in" => (int) env("JWT_TTL") * 60 . " seconds"
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Erreur lors de l\'actualisation du token : ' . $e->getMessage());
+            return response()->json(['error' => 'Erreur lors de l\'actualisation du token'], 500);
+        }
+    }
+    
+
+    
+
+
+   
 }

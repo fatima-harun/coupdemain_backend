@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('telephone', 12)->unique();
             $table->string('CNI', 13)->unique();
             $table->enum('sexe', ['Féminin', 'Masculin']);
-            $table->string('role')->default('employeur');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

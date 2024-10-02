@@ -19,13 +19,20 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(Service::class);
     }
 
+    public function offres()
+{
+    return $this->hasMany(Offre::class);
+}
+
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $guarded = [];
-
+    
+    
 
     /**
      * The attributes that should be hidden for serialization.

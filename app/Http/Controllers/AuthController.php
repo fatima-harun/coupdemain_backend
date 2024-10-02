@@ -92,22 +92,64 @@ class AuthController extends Controller
         ], 500);
     }
 }
-
-
-    public function login(Request $request)
+public function login(Request $request)
     {
-        
-        $credentials = $request->only('email', 'password');
+        // Validation des données
+        $validator = validator($request->all(), [
+            'email' => ['required', 'email', 'string'],
+            'password' => ['required', 'string'],
+        ]);
 
-        \Log::info('Tentative de connexion avec les identifiants : ', $credentials);
-
-
-        if (!$token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
         }
 
-        return $this->respondWithToken($token);
+        // Vérifier si l'utilisateur existe
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json([
+                'message' => 'Utilisateur non trouvé',
+            ], 404); // User not found
+        }
+
+        // Vérifier si le mot de passe est correct
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Mot de passe incorrect',
+            ], 401); // Incorrect password
+        }
+
+        // Authentification réussie, générer le token
+        $token = auth()->guard('api')->login($user);
+
+        // Obtenir les rôles de l'utilisateur
+        $roles = $user->getRoleNames();
+
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'roles' => $roles,
+            'user' => $user,
+            'expires_in' => auth()->guard('api')->factory()->getTTL() * 60, // Expiration en secondes
+        ]);
     }
+
+    // public function login(Request $request)
+    // {
+        
+    //     $credentials = $request->only('email', 'password');
+
+    //     \Log::info('Tentative de connexion avec les identifiants : ', $credentials);
+
+
+    //     if (!$token = auth()->attempt($credentials)) {
+    //         return response()->json(['error' => 'Unauthorized'], 401);
+    //     }
+
+    //     return $this->respondWithToken($token);
+    // }
 
 
     protected function respondWithToken($token)

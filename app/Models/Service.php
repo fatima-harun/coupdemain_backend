@@ -11,14 +11,14 @@ class Service extends Model
     use HasFactory;
 
     protected $guarded = [];
-    
+
     public function offres()
     {
-        return $this->belongsToMany(Offre::class);
+        return $this->belongsToMany(Offre::class,'offre_service');
     }
 
     public function users()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class,'user_service');
     }
 }

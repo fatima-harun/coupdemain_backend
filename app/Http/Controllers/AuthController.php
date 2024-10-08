@@ -15,12 +15,12 @@ class AuthController extends Controller
         return Validator::make($request->all(), [
             'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'nom' => 'required|string',
+            'nom_utilisateur'=> 'required|string|max:12',
             'prenom' => 'required|string',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => 'nullable|string|email|max:255|unique:users',
             'adresse' => 'required|string',
             'telephone' => 'required|string|max:12|unique:users,telephone',
             'sexe' => 'required|in:Féminin,Masculin',
-            'CNI' => 'required|string|max:13|unique:users,CNI',
             'role' => 'required|string|in:employeur,demandeur_d_emploi,admin',
             'password' => 'required|string|min:8',
         ]);
@@ -64,7 +64,7 @@ class AuthController extends Controller
             'adresse' => $request->adresse,
             'telephone' => $request->telephone,
             'sexe' => $request->sexe,
-            'CNI' => $request->CNI,
+            'nom_utilisateur' => $request->nom_utilisateur,
             'password' => Hash::make($request->password),
         ]);
 
@@ -96,7 +96,7 @@ public function login(Request $request)
     {
         // Validation des données
         $validator = validator($request->all(), [
-            'email' => ['required', 'email', 'string'],
+            'nom_utilisateur' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 

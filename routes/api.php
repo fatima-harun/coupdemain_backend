@@ -16,7 +16,7 @@ Route::get('/user', function (Request $request) {
 Route::apiResource('commentaires', CommentaireController::class);
 Route::apiResource('competences', CompetenceController::class);
 Route::apiResource('experiences', ExperienceController::class);
-Route::apiResource('offres', OffreController::class)->middleware("auth");
+Route::apiResource('offres', OffreController::class);
 Route::apiResource('services', ServiceController::class);
 
 

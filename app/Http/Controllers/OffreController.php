@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Offre;
+use Illuminate\Http\Request;
 
 class OffreController extends Controller
 {
@@ -12,7 +12,9 @@ class OffreController extends Controller
      */
     public function index()
     {
-        return offre::all();
+        $offres = Offre::with('services')->get();
+
+        return response()->json(['data' => $offres]);
     }
 
     /**
@@ -20,47 +22,44 @@ class OffreController extends Controller
      */
     public function store(Request $request)
     {
-        $user_id = auth()->user()->id;  
-        $request->validate(
-            [
-                'description' => 'required|string|max:200',
-                'lieu' => 'required|string|max:20',
-                'salaire' => 'required|numeric|max:99999', 
-                'nombre_postes' => 'required|numeric|max:99999', 
-                'horaire' => 'required|string|max:10',
-                'date_debut' => 'required|date_format:Y-m-d', 
-                'date_fin' => 'nullable|date_format:Y-m-d', 
-                'date_limite' => 'nullable|date_format:Y-m-d', 
-                'profil' => 'required|string|max:300',
-            ],
-            
-         );
-        
-         // Créer une nouvelle offre
-    $offre = Offre::create([
-        'description'=> $request->description,
-        'nombre_postes' => $request->nombre_postes,
-        'lieu'=> $request->lieu,
-        'salaire'=> $request->salaire,
-        'horaire'=> $request->horaire,
-        'date_debut'=> $request->date_debut,
-        'date_fin'=> $request->date_fin,
-        'profil'=> $request->profil,
-        'date_limite'=> $request->date_limite,
-        'user_id' => $user_id,
+        $user_id = auth()->user()->id;
 
-    ]);
+        // Validation des données
+        $request->validate([
+            'description' => 'required|string|max:200',
+            'lieu' => 'required|string|max:20',
+            'salaire' => 'required|numeric|max:99999',
+            'nombre_postes' => 'required|numeric|max:99999',
+            'horaire' => 'required|string|max:10',
+            'date_debut' => 'required|date_format:Y-m-d',
+            'date_fin' => 'nullable|date_format:Y-m-d',
+            'date_limite' => 'nullable|date_format:Y-m-d',
+            'profil' => 'required|string|max:300',
+            'service_id' => 'required|exists:services,id',
+        ]);
 
-    // Associer l'ID de l'utilisateur connecté
-   
-    // L'ID de l'utilisateur connecté
-    $offre->save();  // Sauvegarder l'offre mise à jour
+        // Créer une nouvelle offre
+        $offre = Offre::create([
+            'description' => $request->description,
+            'nombre_postes' => $request->nombre_postes,
+            'lieu' => $request->lieu,
+            'salaire' => $request->salaire,
+            'horaire' => $request->horaire,
+            'date_debut' => $request->date_debut,
+            'date_fin' => $request->date_fin,
+            'profil' => $request->profil,
+            'date_limite' => $request->date_limite,
+            'user_id' => $user_id,
+        ]);
 
-    return response()->json([
-        'success' => true,
-        'message' => 'Offre ajoutée avec succès',
-        'data' => $offre
-    ]);
+        // Associer l'offre au service via la table pivot
+        $offre->services()->attach($request->service_id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Offre ajoutée avec succès',
+            'data' => $offre
+        ]);
     }
 
     /**
@@ -70,11 +69,11 @@ class OffreController extends Controller
     {
         $offre = Offre::find($id);
 
-        if(!$offre){
-            return response()->json(['message'=>'offre non trouvé'], 404);
-
-            return $offre;
+        if (!$offre) {
+            return response()->json(['message' => 'offre non trouvé'], 404);
         }
+
+        return response()->json(['data' => $offre]);
     }
 
     /**
@@ -84,24 +83,25 @@ class OffreController extends Controller
     {
         $offre = Offre::find($id);
 
-        if(!$offre){
-            return response()->json(['message'=>'offre non trouvé'], 404);
+        if (!$offre) {
+            return response()->json(['message' => 'offre non trouvé'], 404);
         }
 
-        $request->validate(
-            [
-                // 'description' => 'required|string|max:200',
-                // 'lieu' => 'required|string|max:20',
-                // 'salaire' => 'required|numeric|max:99999', 
-                // 'horaire' => 'required|string|max:10',
-                // 'date_debut' => 'required|date_format:Y-m-d', 
-                // 'date_fin' => 'nullable|date_format:Y-m-d', 
-                // 'date_limite' => 'nullable|date_format:Y-m-d', 
-                // 'profil' => 'required|string|max:300',
-            ]
-         );
-         $offre->update($request->all());
-         return $offre;
+        // Validation des données (décommenter si nécessaire)
+        $request->validate([
+            // 'description' => 'required|string|max:200',
+            // 'lieu' => 'required|string|max:20',
+            // 'salaire' => 'required|numeric|max:99999',
+            // 'nombre_postes' => 'required|numeric|max:99999',
+            // 'horaire' => 'required|string|max:10',
+            // 'date_debut' => 'required|date_format:Y-m-d',
+            // 'date_fin' => 'nullable|date_format:Y-m-d',
+            // 'date_limite' => 'nullable|date_format:Y-m-d',
+            // 'profil' => 'required|string|max:300',
+        ]);
+
+        $offre->update($request->all());
+        return response()->json(['data' => $offre]);
     }
 
     /**
@@ -110,12 +110,13 @@ class OffreController extends Controller
     public function destroy(string $id)
     {
         $offre = Offre::find($id);
-        if(!$offre){
-            return response()->json(['message'=>'offre non trouvé'], 404);
+        if (!$offre) {
+            return response()->json(['message' => 'offre non trouvé'], 404);
         }
 
         $offre->delete();
-        return response()->json(['message'=>'offre supprimé avec succés']);
+        return response()->json(['message' => 'offre supprimée avec succès']);
     }
-    }
+}
+
 

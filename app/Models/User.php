@@ -16,7 +16,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function services()
     {
-        return $this->belongsToMany(Service::class);
+        return $this->belongsToMany(Service::class,'user_service');
     }
 
     public function offres()
@@ -31,8 +31,8 @@ class User extends Authenticatable implements JWTSubject
      * @var array<int, string>
      */
     protected $guarded = [];
-    
-    
+
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -57,7 +57,7 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
-   
+
     public function getJWTIdentifier()
     {
         return $this->getKey();

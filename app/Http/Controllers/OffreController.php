@@ -98,6 +98,7 @@ class OffreController extends Controller
             // 'date_fin' => 'nullable|date_format:Y-m-d',
             // 'date_limite' => 'nullable|date_format:Y-m-d',
             // 'profil' => 'required|string|max:300',
+            // 'service_id' => 'required|exists:services,id',
         ]);
 
         $offre->update($request->all());

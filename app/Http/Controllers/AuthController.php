@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\ServiceUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -23,6 +24,7 @@ class AuthController extends Controller
             'sexe' => 'required|in:Féminin,Masculin',
             'role' => 'required|string|in:employeur,demandeur_d_emploi,admin',
             'password' => 'required|string|min:8',
+            'service_id' => 'nullable|exists:services,id',
         ]);
     }
 
@@ -42,56 +44,59 @@ class AuthController extends Controller
     }
 
     private function createUser($request)
-{
-    // Gestion du téléchargement de l'image
-    $photoPath = null;
-    if ($request->hasFile('photo')) {
-        if ($request->file('photo')->isValid()) {
-            $photoPath = $request->file('photo')->store('images', 'public');
-        } else {
-            return response()->json(['error' => 'Invalid photo upload'], 400);
+    {
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            if ($request->file('photo')->isValid()) {
+                $photoPath = $request->file('photo')->store('images', 'public');
+            } else {
+                return response()->json(['error' => 'Invalid photo upload'], 400);
+            }
+        }
+
+        try {
+            $user = User::create([
+                'photo' => $photoPath,
+                'nom' => $request->nom,
+                'prenom' => $request->prenom,
+                'email' => $request->email,
+                'adresse' => $request->adresse,
+                'telephone' => $request->telephone,
+                'sexe' => $request->sexe,
+                'nom_utilisateur' => $request->nom_utilisateur,
+                'password' => Hash::make($request->password),
+            ]);
+
+            // $user->services()->attach($serviceId);
+
+            $role = $request->role;
+            if (in_array($role, ['employeur', 'demandeur_d_emploi', 'admin'])) {
+                $user->assignRole($role);
+            } else {
+                return response()->json(['error' => 'Rôle invalide'], 400);
+            }
+            if($role == 'demandeur_d_emploi'){
+                $serviceId = $request->service_id;
+                ServiceUser::create([
+                   'service_id'=>$serviceId,
+                   'user_id' => $user->id,
+               ]);
+            }
+
+            return response()->json([
+                "status" => true,
+                "message" => ucfirst($role) . " enregistré avec succès"
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Erreur lors de la création de l\'utilisateur : ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'error' => "Erreur lors de la création de l'utilisateur: " . $e->getMessage()
+            ], 500);
         }
     }
 
-    // Création de l'utilisateur et gestion des erreurs
-    try {
-        // Créer l'utilisateur avec les données envoyées
-        $user = User::create([
-            'photo' => $photoPath, // Enregistrement du chemin de l'image
-            'nom' => $request->nom,
-            'prenom' => $request->prenom,
-            'email' => $request->email,
-            'adresse' => $request->adresse,
-            'telephone' => $request->telephone,
-            'sexe' => $request->sexe,
-            'nom_utilisateur' => $request->nom_utilisateur,
-            'password' => Hash::make($request->password),
-        ]);
-
-        
-        $role = $request->role;
-
-        if (in_array($role, ['employeur', 'demandeur_d_emploi', 'admin'])) {
-            // Assigner le rôle choisi à l'utilisateur
-            $user->assignRole($role);
-        } else {
-            return response()->json(['error' => 'Rôle invalide'], 400);
-        }
-
-        // Retourner une réponse de succès
-        return response()->json([
-            "status" => true,
-            "message" => ucfirst($role) . " enregistré avec succès"
-        ]);
-
-    } catch (\Exception $e) {
-        // Retourner une réponse d'erreur
-        return response()->json([
-            'status' => false,
-            'error' => "Erreur lors de la création de l'utilisateur: " . $e->getMessage()
-        ], 500);
-    }
-}
 public function login(Request $request)
     {
         // Validation des données
@@ -107,7 +112,7 @@ public function login(Request $request)
         }
 
         // Vérifier si l'utilisateur existe
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('nom_utilisateur', $request->nom_utilisateur)->first();
         if (!$user) {
             return response()->json([
                 'message' => 'Utilisateur non trouvé',
@@ -135,21 +140,6 @@ public function login(Request $request)
             'expires_in' => auth()->guard('api')->factory()->getTTL() * 60, // Expiration en secondes
         ]);
     }
-
-    // public function login(Request $request)
-    // {
-        
-    //     $credentials = $request->only('email', 'password');
-
-    //     \Log::info('Tentative de connexion avec les identifiants : ', $credentials);
-
-
-    //     if (!$token = auth()->attempt($credentials)) {
-    //         return response()->json(['error' => 'Unauthorized'], 401);
-    //     }
-
-    //     return $this->respondWithToken($token);
-    // }
 
 
     protected function respondWithToken($token)
@@ -182,10 +172,7 @@ public function login(Request $request)
             return response()->json(['error' => 'Erreur lors de l\'actualisation du token'], 500);
         }
     }
-    
 
-    
-
-
-   
 }
+
+

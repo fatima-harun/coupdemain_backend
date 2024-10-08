@@ -8,6 +8,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\CompetenceController;
 use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\CommentaireController;
+use App\Http\Controllers\ServiceUserController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -22,3 +23,4 @@ Route::apiResource('services', ServiceController::class);
 
 Route::post('/user/create', [AuthController::class, 'register']);
 Route::post('/user/login', [AuthController::class, 'login']);
+Route::post('serviceuser', [ServiceUserController::class, 'store']);

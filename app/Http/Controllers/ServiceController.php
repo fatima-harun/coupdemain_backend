@@ -26,7 +26,7 @@ class ServiceController extends Controller
                 'libelle'=> 'required|string',
                 'description'=> 'required|string'
             ]
-            
+
          );
          return Service::create($request->all());
     }
@@ -37,14 +37,14 @@ class ServiceController extends Controller
     public function show(string $id)
     {
         $service = Service::find($id);
-    
+
         if(!$service){
             return response()->json(['message'=>'service non trouvé'], 404);
         }
-    
+
         return $service;
     }
-    
+
 
     /**
      * Update the specified resource in storage.
@@ -67,6 +67,7 @@ class ServiceController extends Controller
          return $service;
     }
 
+   
 
     /**
      * Remove the specified resource from storage.

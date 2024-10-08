@@ -17,7 +17,7 @@ class Offre extends Model
 
     public function services()
     {
-        return $this->belongsToMany(Service::class);
+        return $this->belongsToMany(Service::class,'offre_service');
     }
 
     public function user()

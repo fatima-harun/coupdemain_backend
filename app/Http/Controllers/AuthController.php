@@ -185,9 +185,7 @@ public function login(Request $request)
         else{
             return null;
         }
-
     }
-
 
 }
 

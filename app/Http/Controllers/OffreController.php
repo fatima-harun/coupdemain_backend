@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Offre;
+use App\Models\Service;
 use Illuminate\Http\Request;
 
 class OffreController extends Controller
@@ -117,6 +118,22 @@ class OffreController extends Controller
 
         $offre->delete();
         return response()->json(['message' => 'offre supprimée avec succès']);
+    }
+
+
+    public function getOffresByService($serviceId)
+    {
+        // Récupérer le service par ID
+        $service = Service::with('offres')->find($serviceId);
+
+        if (!$service) {
+            return response()->json(['message' => 'Service non trouvé'], 404);
+        }
+
+        // Récupérer les offres associées au service
+        $offres = $service->offres;
+
+        return response()->json($offres);
     }
 }
 

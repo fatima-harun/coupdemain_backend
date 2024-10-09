@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Competence;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
@@ -22,6 +23,15 @@ class User extends Authenticatable implements JWTSubject
     public function offres()
 {
     return $this->hasMany(Offre::class);
+}
+
+public function competences()
+{
+    return $this->hasMany(Competence::class);
+}
+public function experiences()
+{
+    return $this->hasMany(Experience::class);
 }
 
 

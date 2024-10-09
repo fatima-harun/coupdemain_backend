@@ -12,6 +12,7 @@ class CompetenceController extends Controller
      */
     public function index()
     {
+        
         return Competence::all();
     }
 
@@ -24,7 +25,7 @@ class CompetenceController extends Controller
             [
                 'libelle'=> 'required|string',
             ]
-            
+
          );
          return Competence::create($request->all());
     }

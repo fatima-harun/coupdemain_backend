@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\ServiceUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -172,6 +173,21 @@ public function login(Request $request)
             return response()->json(['error' => 'Erreur lors de l\'actualisation du token'], 500);
         }
     }
+
+    public function employe(){
+
+        $user=Auth::user();
+        if( $user->hasRole('demandeur_d_emploi')){
+            return $employe= User::with(["experiences","competences"])->where('id', $user->id)->get();
+        }elseif ($user->hasRole('employeur')) {
+            return $employe= User::with(["experiences","competences"])->hasRole('demandeur_d_emploi')->get();
+        }
+        else{
+            return null;
+        }
+
+    }
+
 
 }
 

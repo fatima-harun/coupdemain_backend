@@ -24,3 +24,4 @@ Route::apiResource('services', ServiceController::class);
 Route::post('/user/create', [AuthController::class, 'register']);
 Route::post('/user/login', [AuthController::class, 'login']);
 Route::post('serviceuser', [ServiceUserController::class, 'store']);
+Route::get('employe', [AuthController::class, 'employe']);

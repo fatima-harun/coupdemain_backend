@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CandidatController;
 use App\Http\Controllers\OffreController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\CompetenceController;
@@ -28,4 +29,6 @@ Route::post('serviceuser', [ServiceUserController::class, 'store']);
 Route::get('employe', [AuthController::class, 'employe']);
 
 Route::get('/services/{serviceId}/offres', [OffreController::class, 'getOffresByService']);
+Route::get('/offres/{offreId}/offres', [OffreController::class, 'getOffresByid']);
 
+Route::get('candidats', [CandidatController::class, 'index']);

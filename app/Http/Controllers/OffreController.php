@@ -66,16 +66,18 @@ class OffreController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        $offre = Offre::find($id);
+   public function show(string $id)
+{
+    // Récupérer l'offre avec ses services associés
+    $offre = Offre::with('services')->find($id);
 
-        if (!$offre) {
-            return response()->json(['message' => 'offre non trouvé'], 404);
-        }
-
-        return response()->json(['data' => $offre]);
+    if (!$offre) {
+        return response()->json(['message' => 'Offre non trouvée'], 404);
     }
+
+    return response()->json(['data' => $offre]);
+}
+
 
     /**
      * Update the specified resource in storage.

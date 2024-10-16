@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Service;
 use Illuminate\Http\Request;
 
 
@@ -29,10 +30,22 @@ class CandidatController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        //
+    public function show($candidatId)
+{
+    // Récupérer le candidat avec tous ses services associés
+    $candidat = User::with('services','competences', 'experiences')->find($candidatId);
+
+    // Vérifier si le candidat existe
+    if (!$candidat) {
+        return response()->json(['message' => 'Candidat non trouvé'], 404);
     }
+
+    // Retourner les détails du candidat avec ses services
+    return response()->json($candidat);
+}
+
+
+
 
     /**
      * Update the specified resource in storage.
@@ -49,4 +62,7 @@ class CandidatController extends Controller
     {
         //
     }
+
+
+
 }

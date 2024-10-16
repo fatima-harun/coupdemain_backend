@@ -4,17 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Models\Competence;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
 class CompetenceController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        
-        return Competence::all();
+    public function index($candidatId)
+{
+    // Vérifiez si le candidat existe
+    $competences = Competence::where('user_id', $candidatId)->get();
+
+    if ($competences->isEmpty()) {
+        return response()->json(['message' => 'Aucune compétence trouvée pour ce candidat'], 404);
     }
+
+    return response()->json($competences);
+}
+
 
     /**
      * Store a newly created resource in storage.

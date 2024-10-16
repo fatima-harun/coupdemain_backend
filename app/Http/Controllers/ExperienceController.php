@@ -10,10 +10,18 @@ class ExperienceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        return Experience::all();
+    public function index($candidatId)
+{
+    // Vérifiez si le candidat existe
+    $experiences = Experience::where('user_id', $candidatId)->get();
+
+    if ($experiences->isEmpty()) {
+        return response()->json(['message' => 'Aucune experience trouvée trouvée pour ce candidat'], 404);
     }
+
+    return response()->json($experiences);
+}
+
 
     /**
      * Store a newly created resource in storage.
@@ -25,7 +33,7 @@ class ExperienceController extends Controller
                 'libelle'=> 'required|string',
                 'description'=> 'required|string',
             ]
-            
+
          );
          return Experience::create($request->all());
     }

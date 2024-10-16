@@ -27,7 +27,7 @@ class InfoUtilisateurController extends Controller
         $competence = new Competence();
         $competence->libelle = $request->competence['libelle'];
         $competence->description = $request->competence['description'];
-        $competence->user_id = Auth::id(); // Assurez-vous d'ajouter l'ID de l'utilisateur
+        $competence->user_id = Auth::id();
         $competence->save();
 
         // Enregistrer les expériences
@@ -35,8 +35,8 @@ class InfoUtilisateurController extends Controller
             foreach ($request->experiences as $exp) {
                 $experience = new Experience();
                 $experience->libelle = $exp['title'];
-                $experience->description = $exp['description']; // Assurez-vous d'avoir cette colonne
-                $experience->user_id = Auth::id(); // Assurez-vous d'ajouter l'ID de l'utilisateur
+                $experience->description = $exp['description'];
+                $experience->user_id = Auth::id();
                 $experience->save();
             }
         }

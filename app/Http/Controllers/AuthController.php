@@ -174,18 +174,27 @@ public function login(Request $request)
         }
     }
 
-    public function employe(){
+    public function employe() {
+        $user = Auth::user();
 
-        $user=Auth::user();
-        if( $user->hasRole('demandeur_d_emploi')){
-            return $employe= User::with(["experiences","competences"])->where('id', $user->id)->get();
-        }elseif ($user->hasRole('employeur')) {
-            return $employe= User::with(["experiences","competences"])->hasRole('demandeur_d_emploi')->get();
-        }
-        else{
+        if ($user->hasRole('demandeur_d_emploi')) {
+            // Récupérer l'utilisateur connecté avec ses expériences et compétences
+            return User::with(['experiences', 'competences'])
+                       ->where('id', $user->id)
+                       ->get();
+        } elseif ($user->hasRole('employeur')) {
+            // Récupérer tous les demandeurs d'emploi avec leurs expériences et compétences
+            return User::with(['experiences', 'competences'])
+                       ->whereHas('roles', function($query) {
+                           $query->where('name', 'demandeur_d_emploi');
+                       })
+                       ->get();
+        } else {
+            // Aucun rôle pertinent trouvé
             return null;
         }
     }
+
 
 }
 

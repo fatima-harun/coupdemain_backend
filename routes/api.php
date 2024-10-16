@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CandidatController;
+use App\Http\Controllers\CandidatureController;
 use App\Http\Controllers\OffreController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\CompetenceController;
@@ -23,6 +24,11 @@ Route::apiResource('offres', OffreController::class);
 Route::apiResource('services', ServiceController::class);
 Route::apiResource('infouser', InfoUtilisateurController::class);
 
+Route::get('/candidats/{candidatId}/competences', [CompetenceController::class, 'index']);
+Route::get('/candidats/{candidatId}/experiences', [ExperienceController::class, 'index']);
+
+Route::post('/candidatures', [CandidatureController::class, 'store']);
+
 Route::post('/user/create', [AuthController::class, 'register']);
 Route::post('/user/login', [AuthController::class, 'login']);
 Route::post('serviceuser', [ServiceUserController::class, 'store']);
@@ -32,3 +38,5 @@ Route::get('/services/{serviceId}/offres', [OffreController::class, 'getOffresBy
 Route::get('/offres/{offreId}/offres', [OffreController::class, 'getOffresByid']);
 
 Route::get('candidats', [CandidatController::class, 'index']);
+Route::get('/candidats/{candidatId}', [CandidatController::class, 'show']);
+

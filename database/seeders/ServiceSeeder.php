@@ -33,6 +33,12 @@ class ServiceSeeder extends Seeder
            [
             'libelle' =>"Nounou"
            ],
+           [
+            'libelle' =>"Lingère"
+           ],
+           [
+            'libelle' =>"Jardinier(e)"
+           ],
         ];
         foreach($services as $service){
             Service::create($service);

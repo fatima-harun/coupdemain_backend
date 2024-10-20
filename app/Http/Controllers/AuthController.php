@@ -2,56 +2,37 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AuthRequest;
+use App\Http\Requests\UpdateAuthRequest;
 use App\Models\User;
 use App\Models\ServiceUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    // Méthode privée pour valider les entrées
-    private function validateRequest($request, $role)
+    /**
+     * Inscription d'un nouvel utilisateur.
+     */
+    public function register(AuthRequest $request)
     {
-        return Validator::make($request->all(), [
-            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'nom' => 'required|string',
-            'nom_utilisateur'=> 'required|string|max:12',
-            'prenom' => 'required|string',
-            'email' => 'nullable|string|email|max:255|unique:users',
-            'adresse' => 'required|string',
-            'telephone' => 'required|string|max:12|unique:users,telephone',
-            'sexe' => 'required|in:Féminin,Masculin',
-            'role' => 'required|string|in:employeur,demandeur_d_emploi,admin',
-            'password' => 'required|string|min:8',
-            'service_id' => 'nullable|exists:services,id',
-        ]);
-    }
-
-    // Fonction générique pour l'inscription
-    public function register(Request $request)
-    {
-        // Validation des entrées et rôle
-        $validator = $this->validateRequest($request, $request->role);
-
-        // Vérification des erreurs de validation
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
-        }
-
-        // Création de l'utilisateur
+        // Appel direct de la méthode de création après validation via AuthRequest
         return $this->createUser($request);
     }
 
+    /**
+     * Création d'un utilisateur avec son rôle et son service s'il est demandeur d'emploi.
+     */
     private function createUser($request)
     {
         $photoPath = null;
+
         if ($request->hasFile('photo')) {
             if ($request->file('photo')->isValid()) {
                 $photoPath = $request->file('photo')->store('images', 'public');
             } else {
-                return response()->json(['error' => 'Invalid photo upload'], 400);
+                return response()->json(['error' => 'La photo téléchargée est invalide'], 400);
             }
         }
 
@@ -68,20 +49,16 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password),
             ]);
 
-            // $user->services()->attach($serviceId);
-
+            // Attribution du rôle
             $role = $request->role;
-            if (in_array($role, ['employeur', 'demandeur_d_emploi', 'admin'])) {
-                $user->assignRole($role);
-            } else {
-                return response()->json(['error' => 'Rôle invalide'], 400);
-            }
-            if($role == 'demandeur_d_emploi'){
-                $serviceId = $request->service_id;
+            $user->assignRole($role);
+
+            // Si l'utilisateur est un demandeur d'emploi, lier un service à son profil
+            if ($role === 'demandeur_d_emploi') {
                 ServiceUser::create([
-                   'service_id'=>$serviceId,
-                   'user_id' => $user->id,
-               ]);
+                    'service_id' => $request->service_id,
+                    'user_id' => $user->id,
+                ]);
             }
 
             return response()->json([
@@ -98,39 +75,19 @@ class AuthController extends Controller
         }
     }
 
-public function login(Request $request)
+    /**
+     * Connexion de l'utilisateur.
+     */
+    public function login(Request $request)
     {
-        // Validation des données
-        $validator = validator($request->all(), [
-            'nom_utilisateur' => ['required', 'string'],
-            'password' => ['required', 'string'],
-        ]);
+        $credentials = $request->only('nom_utilisateur', 'password');
 
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-            ], 422);
+        if (!Auth::attempt($credentials)) {
+            return response()->json(['message' => 'Identifiants incorrects'], 401);
         }
 
-        // Vérifier si l'utilisateur existe
-        $user = User::where('nom_utilisateur', $request->nom_utilisateur)->first();
-        if (!$user) {
-            return response()->json([
-                'message' => 'Utilisateur non trouvé',
-            ], 404); // User not found
-        }
-
-        // Vérifier si le mot de passe est correct
-        if (!Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'message' => 'Mot de passe incorrect',
-            ], 401); // Incorrect password
-        }
-
-        // Authentification réussie, générer le token
+        $user = Auth::user();
         $token = auth()->guard('api')->login($user);
-
-        // Obtenir les rôles de l'utilisateur
         $roles = $user->getRoleNames();
 
         return response()->json([
@@ -138,26 +95,56 @@ public function login(Request $request)
             'token_type' => 'bearer',
             'roles' => $roles,
             'user' => $user,
-            'expires_in' => auth()->guard('api')->factory()->getTTL() * 60, // Expiration en secondes
+            'expires_in' => auth()->guard('api')->factory()->getTTL() * 60,
         ]);
     }
-
-
-    protected function respondWithToken($token)
+    public function update(UpdateAuthRequest $request, string $id)
     {
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
-        ]);
+        // Trouver l'utilisateur correspondant à l'ID
+        $user = User::find($id);
+
+        // Vérifier si l'utilisateur existe
+        if (!$user) {
+            return response()->json(["message" => "Utilisateur non trouvé"], 404);
+        }
+
+        // Récupérer les données validées sauf le champ role
+        $data = $request->validated();
+
+        // Retirer le champ 'role' du tableau si présent
+        unset($data['role']);
+
+        // Si une photo est téléchargée, gérer l'upload de la nouvelle photo
+        if ($request->hasFile('photo')) {
+            // Supprimer l'ancienne photo si elle existe
+            if (File::exists(public_path("storage/" . $user->photo))) {
+                File::delete(public_path("storage/" . $user->photo));
+            }
+
+            // Stocker la nouvelle photo
+            $photoPath = $request->file('photo')->store('images', 'public');
+            $data['photo'] = $photoPath; // Ajouter le chemin de la nouvelle photo
+        }
+
+        // Mettre à jour les informations de l'utilisateur
+        $user->update($request->all());
+
+        return response()->json(["message" => "Modification réussie"]);
     }
 
 
+    /**
+     * Déconnexion de l'utilisateur.
+     */
     public function logout()
     {
         auth()->logout();
         return response()->json(["message" => "Déconnexion réussie"]);
     }
+
+    /**
+     * Rafraîchir le token JWT.
+     */
     public function refresh()
     {
         try {
@@ -174,28 +161,42 @@ public function login(Request $request)
         }
     }
 
-    public function employe() {
+    /**
+     * Obtenir la liste des utilisateurs et leurs informations selon leur rôle.
+     */
+    public function employe()
+    {
         $user = Auth::user();
 
         if ($user->hasRole('demandeur_d_emploi')) {
-            // Récupérer l'utilisateur connecté avec ses expériences et compétences
             return User::with(['experiences', 'competences'])
                        ->where('id', $user->id)
                        ->get();
         } elseif ($user->hasRole('employeur')) {
-            // Récupérer tous les demandeurs d'emploi avec leurs expériences et compétences
             return User::with(['experiences', 'competences'])
                        ->whereHas('roles', function($query) {
                            $query->where('name', 'demandeur_d_emploi');
                        })
                        ->get();
-        } else {
-            // Aucun rôle pertinent trouvé
-            return null;
         }
+
+        return response()->json(['message' => 'Rôle non autorisé'], 403);
+    }
+    public function profil(Request $request)
+    {
+        $user = User::with('services','competences','experiences')->find($request->user()->id);
+        return response()->json($user);
     }
 
 
+    public function destroy(string $id){
+         // Trouver l'utilisateur correspondant à l'ID
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['message' => 'utilisateur non trouvé'], 404);
+        }
+
+        $user->delete();
+        return response()->json(['message' => 'Utilisateur supprimé avec succès']);
+    }
 }
-
-

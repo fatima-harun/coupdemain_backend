@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('horaire');
             $table->integer('nombre_postes');
             $table->date('date_debut');
-            $table->date('date_fin');
-            $table->date('date_limite');
+            $table->date('date_fin')->nullable();
+            $table->date('date_limite')->nullable();
             $table->text('profil');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

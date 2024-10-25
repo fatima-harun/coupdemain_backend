@@ -82,31 +82,28 @@ class OffreController extends Controller
      * Update the specified resource in storage.
      */
     public function update(UpdateOffreRequest $request, string $id)
-{
-    // Trouver l'offre par ID
-    $offre = Offre::find($id);
+    {
+        // Trouver l'offre par ID
+        $offre = Offre::find($id);
 
-    if (!$offre) {
-        return response()->json(['message' => 'Offre non trouvée'], 404);
+        if (!$offre) {
+            return response()->json(['message' => 'Offre non trouvée'], 404);
+        }
+        // Mettre à jour les autres champs de l'offre
+        $offre->update($request->except('service_ids')); // Exclure les services de la mise à jour directe
+        // Vérifier si des services sont fournis
+        if ($request->has('service_ids')) {
+            $newServiceIds = $request->input('service_ids', []); // Récupérer les services soumis
+            // Synchroniser les services avec ceux fournis par l'utilisateur
+            $offre->services()->sync($newServiceIds);
+            // sync() : Remplace les anciens services par les nouveaux
+        }
+        // Charger les relations pour renvoyer une réponse complète
+        $offre->load('services');
+
+        return response()->json(['data' => $offre], 200);
     }
 
-    // Mettre à jour l'offre avec les données validées
-    $offre->update($request->except('service_ids')); // Exclure service_ids de la mise à jour
-
-    // Vérifiez si service_ids est présent dans la requête
-    if ($request->has('service_ids')) {
-        // Récupérer les IDs des services existants
-        $existingServices = $offre->services()->pluck('services.id')->toArray(); // Spécifiez le nom de la table ici
-
-        // Fusionner les services existants avec les nouveaux services
-        $newServiceIds = array_unique(array_merge($existingServices, $request->service_ids));
-
-        // Synchroniser les services associés à l'offre
-        $offre->services()->sync($newServiceIds); // Utilisez sync pour mettre à jour les relations
-    }
-
-    return response()->json(['data' => $offre]);
-}
 
 
     /**

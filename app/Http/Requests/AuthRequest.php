@@ -25,7 +25,7 @@ class AuthRequest extends FormRequest
     {
         return [
             // 2048KO est égal à 2Mo
-            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:4000',
             'nom' => 'required|string',
             'nom_utilisateur'=> 'required|string|unique:users|max:20',
             'prenom' => 'required|string',

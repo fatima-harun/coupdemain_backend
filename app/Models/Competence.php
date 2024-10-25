@@ -12,9 +12,8 @@ class Competence extends Model
     protected $fillable = [
         'libelle',
         'description',
-        'user_id'
     ];
-    
+
     public function user()
     {
         return $this->belongsTo(User::class);

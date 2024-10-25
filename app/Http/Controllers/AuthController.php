@@ -52,13 +52,9 @@ class AuthController extends Controller
             // Attribution du rôle
             $role = $request->role;
             $user->assignRole($role);
-
             // Si l'utilisateur est un demandeur d'emploi, lier un service à son profil
             if ($role === 'demandeur_d_emploi') {
-                ServiceUser::create([
-                    'service_id' => $request->service_id,
-                    'user_id' => $user->id,
-                ]);
+            $user->services()->attach($request->service_ids);
             }
 
             return response()->json([

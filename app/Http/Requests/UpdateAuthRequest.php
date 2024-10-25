@@ -23,7 +23,7 @@ class UpdateAuthRequest extends FormRequest
             'telephone' => 'sometimes|string|max:12|unique:users,telephone',
             'sexe' => 'sometimes|in:Féminin,Masculin',
             'password' => 'sometimes|string|min:8',
-            'service_id' => 'required|exists:services,id',
+            'service_id' => 'sometimes|exists:services,id',
         ];
     }
 

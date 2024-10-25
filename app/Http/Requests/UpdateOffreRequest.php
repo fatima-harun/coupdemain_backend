@@ -31,7 +31,7 @@ class UpdateOffreRequest extends FormRequest
             'date_fin' => 'nullable|date_format:Y-m-d|after_or_equal:date_debut',
             'date_limite' => 'nullable|date_format:Y-m-d|after_or_equal:date_debut',
             'profil' => 'sometimes|string|max:500',
-           'service_ids' => 'required|array|min:1',
+           'service_ids' => 'sometimes|array|min:1',
          'service_ids.*' => 'distinct|exists:services,id',
 
         ];

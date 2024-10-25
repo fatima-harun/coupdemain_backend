@@ -12,6 +12,7 @@ use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\CommentaireController;
 use App\Http\Controllers\ServiceUserController;
 use App\Http\Controllers\InfoUtilisateurController;
+use App\Models\Experience;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -24,8 +25,18 @@ Route::apiResource('offres', OffreController::class);
 Route::apiResource('services', ServiceController::class);
 Route::apiResource('infouser', InfoUtilisateurController::class);
 
-Route::get('/candidats/{candidatId}/competences', [CompetenceController::class, 'index']);
+Route::get('/competences', [CompetenceController::class, 'usercompetence']); //le user verra ses propres competences
+Route::get('/candidats/{candidatId}/competences', [CompetenceController::class, 'index']);//l'employeur verra les compètences des candidats
+Route::put('/competences/{competenceId}', [CompetenceController::class, 'update']);
+Route::get('/competences/{id}', [CompetenceController::class, 'show']);
+Route::delete('/competences/{id}', [CompetenceController::class, 'destroy']);
+
+
+Route::put('/experiences/{experienceId}', [ExperienceController::class, 'update']);
 Route::get('/candidats/{candidatId}/experiences', [ExperienceController::class, 'index']);
+Route::get('/experiences/{id}', [ExperienceController::class, 'show']);
+Route::delete('/experiences/{id}', [ExperienceController::class, 'destroy']);
+Route::get('/experiences', [ExperienceController::class, 'userexperience']); //le user verra ses propres competences
 
 Route::post('/candidatures', [CandidatureController::class, 'store']);
 
@@ -40,7 +51,8 @@ Route::get('employe', [AuthController::class, 'employe']);
 
 Route::get('/services/{serviceId}/offres', [OffreController::class, 'getOffresByService']);
 Route::get('/offres/{offreId}/offres', [OffreController::class, 'getOffresByid']);
-Route::put('/offres/{offreId}', [OffreController::class, 'update']);
+Route::post('/offres/{offreId}', [OffreController::class, 'update']);
+Route::delete('/offres/{offreId}', [OffreController::class, 'destroy']);
 
 Route::middleware('auth:api')->get('/profil', [AuthController::class, 'profil']);
 

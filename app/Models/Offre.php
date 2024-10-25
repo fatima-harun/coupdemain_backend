@@ -28,6 +28,6 @@ class Offre extends Model
 
     public function employe()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class,'user_service');
     }
 }

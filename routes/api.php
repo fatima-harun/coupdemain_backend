@@ -43,19 +43,21 @@ Route::post('/candidatures', [CandidatureController::class, 'store']);
 // route des visiteurs
 Route::post('/user/create', [AuthController::class, 'register']);
 // pour celui qui est connecté
-Route::put('/user/{userId}/update', [AuthController::class, 'update']);
+Route::middleware('auth')->post('/user/update', [AuthController::class, 'update']);
+
 Route::delete('/user/{userId}/delete', [AuthController::class, 'destroy']);
 Route::post('/user/login', [AuthController::class, 'login']);
 Route::post('serviceuser', [ServiceUserController::class, 'store']);
 Route::get('employe', [AuthController::class, 'employe']);
+Route::get('/services/{serviceId}/user', [AuthController::class, 'getCandidatsByService']);
 
 Route::get('/services/{serviceId}/offres', [OffreController::class, 'getOffresByService']);
-Route::get('/offres/{offreId}/offres', [OffreController::class, 'getOffresByid']);
+Route::get('/offres/mesoffres', [OffreController::class, 'ShowMesOffres']);
+Route::get('/employeur/offres', [OffreController::class, 'ShowMesOffres'])->middleware('auth');
 Route::post('/offres/{offreId}', [OffreController::class, 'update']);
 Route::delete('/offres/{offreId}', [OffreController::class, 'destroy']);
 
 Route::middleware('auth:api')->get('/profil', [AuthController::class, 'profil']);
-
 
 Route::get('candidats', [CandidatController::class, 'index']);
 Route::get('/candidats/{candidatId}', [CandidatController::class, 'show']);

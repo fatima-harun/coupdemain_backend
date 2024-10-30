@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\OffreRequest;
-use App\Http\Requests\UpdateOffreRequest;
 use App\Models\Offre;
 use App\Models\Service;
 use Illuminate\Http\Request;
+use App\Http\Requests\OffreRequest;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\UpdateOffreRequest;
 
 class OffreController extends Controller
 {
@@ -135,6 +136,27 @@ class OffreController extends Controller
 
         return response()->json($offres);
     }
+    public function ShowMesOffres() {
+        // Récupérer l'utilisateur connecté
+        $userId = Auth::id();
+        $user = Auth::user(); // Récupérer l'utilisateur connecté
+
+        // Vérifier si l'utilisateur a le rôle d'employeur
+        if (!$user->hasRole('employeur')) {
+            return response()->json(['message' => 'Accès interdit. Vous n\'avez pas le droit de voir ces offres.'], 403); // 403 : Accès interdit
+        }
+
+        // Récupérer toutes les offres créées par cet utilisateur avec leurs services associés
+        $offres = Offre::with('services')->where('user_id', $userId)->get();
+
+        if ($offres->isEmpty()) {
+            return response()->json(['message' => 'Aucune offre trouvée'], 404);
+        }
+
+        return response()->json(['data' => $offres]);
+    }
+
+
 }
 
 

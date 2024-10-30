@@ -14,16 +14,16 @@ class UpdateAuthRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'photo' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'nom' => 'sometimes|string',
-            'nom_utilisateur'=> 'sometimes|string|unique:users,nom_utilisateur',
-            'prenom' => 'sometimes|string',
-            'email' => 'nullable|string|email|max:255|unique:users,email',
-            'adresse' => 'sometimes|string',
-            'telephone' => 'sometimes|string|max:12|unique:users,telephone',
-            'sexe' => 'sometimes|in:Féminin,Masculin',
-            'password' => 'sometimes|string|min:8',
-            'service_id' => 'sometimes|exists:services,id',
+            // 'photo' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+            // 'nom' => 'sometimes|string',
+            // 'nom_utilisateur'=> 'sometimes|string|unique:users,nom_utilisateur',
+            // 'prenom' => 'sometimes|string',
+            // 'email' => 'nullable|string|email|max:255|unique:users,email',
+            // 'adresse' => 'sometimes|string',
+            // 'telephone' => 'sometimes|string|max:12|unique:users,telephone',
+            // 'sexe' => 'sometimes|in:Féminin,Masculin',
+            // 'password' => 'sometimes|string|min:8',
+            // 'service_id' => 'sometimes|exists:services,id',
         ];
     }
 

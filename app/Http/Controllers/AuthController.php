@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AuthRequest;
-use App\Http\Requests\UpdateAuthRequest;
 use App\Models\User;
 use App\Models\ServiceUser;
 use Illuminate\Http\Request;
+use App\Http\Requests\AuthRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\UpdateAuthRequest;
+use Illuminate\Support\Facades\Validator;
+use App\Models\Service;
+
 
 class AuthController extends Controller
 {
@@ -94,21 +98,38 @@ class AuthController extends Controller
             'expires_in' => auth()->guard('api')->factory()->getTTL() * 60,
         ]);
     }
-    public function update(UpdateAuthRequest $request, string $id)
+    public function update(Request $request)
     {
-        // Trouver l'utilisateur correspondant à l'ID
-        $user = User::find($id);
+        // Récupérer l'utilisateur actuellement authentifié
+        $user = Auth::user();
+
 
         // Vérifier si l'utilisateur existe
         if (!$user) {
             return response()->json(["message" => "Utilisateur non trouvé"], 404);
         }
 
-        // Récupérer les données validées sauf le champ role
-        $data = $request->validated();
+        // Définir les règles de validation
+        $validator = Validator::make($request->all(), [
+            'photo' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'nom' => 'sometimes|string',
+            'nom_utilisateur'=> 'sometimes|string|unique:users,nom_utilisateur,'.$user->id,
+            'prenom' => 'sometimes|string',
+            'email' => 'nullable|string|email|max:255|unique:users,email,'.$user->id,
+            'adresse' => 'sometimes|string',
+            'telephone' => 'sometimes|string|max:12|unique:users,telephone,'.$user->id,
+            'sexe' => 'sometimes|in:Féminin,Masculin',
+            'password' => 'sometimes|string|min:8',
+            'service_id' => 'sometimes|exists:services,id',
+        ]);
 
-        // Retirer le champ 'role' du tableau si présent
-        unset($data['role']);
+        // Vérifier si la validation échoue
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        // Récupérer les données validées
+        $data = $validator->validated();
 
         // Si une photo est téléchargée, gérer l'upload de la nouvelle photo
         if ($request->hasFile('photo')) {
@@ -116,18 +137,19 @@ class AuthController extends Controller
             if (File::exists(public_path("storage/" . $user->photo))) {
                 File::delete(public_path("storage/" . $user->photo));
             }
-
-            // Stocker la nouvelle photo
-            $photoPath = $request->file('photo')->store('images', 'public');
-            $data['photo'] = $photoPath; // Ajouter le chemin de la nouvelle photo
+            if ($request->file('photo')->isValid()) {
+                $photoPath = $request->file('photo')->store('images', 'public');
+                $data['photo'] = $photoPath; // Ajouter le chemin de la nouvelle photo
+            } else {
+                return response()->json(['error' => 'La photo téléchargée est invalide'], 400);
+            }
         }
 
         // Mettre à jour les informations de l'utilisateur
-        $user->update($request->all());
+        $user->update($data);
 
         return response()->json(["message" => "Modification réussie"]);
     }
-
 
     /**
      * Déconnexion de l'utilisateur.
@@ -195,4 +217,25 @@ class AuthController extends Controller
         $user->delete();
         return response()->json(['message' => 'Utilisateur supprimé avec succès']);
     }
+
+    public function getCandidatsByService($serviceId)
+    {
+        // Récupérer le service par ID
+        $service = Service::with(['employe' => function ($query) {
+            $query->whereHas('roles', function ($roleQuery) {
+                $roleQuery->where('name', 'demandeur_d_emploi');
+            });
+        }])->find($serviceId);
+
+        if (!$service) {
+            return response()->json(['message' => 'Service non trouvé'], 404);
+        }
+
+        // Récupérer les utilisateurs associés au service ayant le rôle de demandeur d'emploi
+        $candidats = $service->employe;
+
+        return response()->json($candidats);
+    }
+
+
 }

@@ -39,6 +39,7 @@ Route::delete('/experiences/{id}', [ExperienceController::class, 'destroy']);
 Route::get('/experiences', [ExperienceController::class, 'userexperience']); //le user verra ses propres competences
 
 Route::post('/candidatures', [CandidatureController::class, 'store']);
+Route::get('/candidatures/{offreId}/offre', [CandidatureController::class, 'getCandidaturesByOffre']);
 
 // route des visiteurs
 Route::post('/user/create', [AuthController::class, 'register']);
@@ -61,4 +62,3 @@ Route::middleware('auth:api')->get('/profil', [AuthController::class, 'profil'])
 
 Route::get('candidats', [CandidatController::class, 'index']);
 Route::get('/candidats/{candidatId}', [CandidatController::class, 'show']);
-

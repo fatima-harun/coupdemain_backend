@@ -9,7 +9,7 @@ use App\Traits\NotificationTrait;
 
 class CandidatureController extends Controller
 {
-    use NotificationTrait;
+    // use NotificationTrait;
     /**
      * Display a listing of the resource.
      */
@@ -24,23 +24,33 @@ class CandidatureController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'offre_id' => 'required|exists:offres,id',
-            'date_candidature' => 'required|date'
+        //     'offre_id' => 'required|exists:offres,id',
+        //     'date_candidature' => 'required|date',
+        //    'statut' => 'required|in:en cours,rejeter,recruter'
         ]);
-
+    
         // Créez la candidature
         $candidature = Candidature::create([
             'user_id' => auth()->user()->id,
             'offre_id' => $request->offre_id,
-            'date_candidature' => $request->date_candidature,
+            'statut' => $request->statut,
         ]);
-
+    
+        // Récupérez les détails de l'offre associée
+        $offre = $candidature->offre; //offre associée
+        $user = $candidature->user; //candidat associé
+       //$notification = $candidature->notification; // Notification associée
+    
         // Envoyez une notification à l'utilisateur connecté
-        $message = 'Votre candidature pour l\'offre ID ' . $request->offre_id . ' a été enregistrée avec succès.';
-        $this->sendNotification(auth()->user(), $message);
-
-        return response()->json(['message' => 'Candidature enregistrée avec succès.'], 201);
+        $message = 'Votre candidature pour l\'offre "' . $offre->titre . '" a été enregistrée avec succès.';
+        // $this->sendNotification(auth()->user(), $message);
+    
+        return response()->json([
+            'message' => 'Candidature enregistrée avec succès.',
+            'offre' => $offre
+        ], 201);
     }
+    
 
     /**
      * Display the specified resource.
@@ -48,6 +58,21 @@ class CandidatureController extends Controller
     public function show(string $id)
     {
         //
+    }
+    public function getCandidaturesByOffre($offreId)
+
+    {
+        return Candidature::with('user') 
+        ->where('offre_id', $offreId)
+        ->get();
+        // Récupérer les candidatures associées à l'ID de l'offre
+        $candidatures = Candidature::where('offre_id', $offreId)->get();
+
+        // Retourner les candidatures au format JSON
+        return response()->json([
+            'data' => $candidatures,
+            'message' => 'Candidatures récupérées avec succès.'
+        ]);
     }
 
     /**

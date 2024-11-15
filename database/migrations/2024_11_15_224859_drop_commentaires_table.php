@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('commentaires', function (Blueprint $table) {
-            $table->foreignId('user_id')->after('id')->constrained('users')->onDelete('cascade'); // Candidat
-            $table->foreignId('employer_id')->after('user_id')->constrained('users')->onDelete('cascade'); // Employeur
+            //
         });
     }
 
@@ -23,9 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('commentaires', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
-            $table->dropForeign(['employer_id']);
-            $table->dropColumn(['user_id', 'employer_id']);
+            //
         });
     }
 };

@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('commentaires', function (Blueprint $table) {
+        Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Candidat
-           $table->foreignId('employer_id')->constrained('users')->onDelete('cascade'); // Employeur
-           $table->text('comment');
-            $table->text('description');
+            $table->text('message');
             $table->timestamps();
+            $table->unsignedBigInteger('candidature_id');
+            $table->foreign('candidature_id')->references('id')->on('candidatures')->onDelete('cascade');
         });
     }
 
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('commentaires');
+        Schema::dropIfExists('notifications');
     }
 };

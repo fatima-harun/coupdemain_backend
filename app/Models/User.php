@@ -34,7 +34,10 @@ public function experiences()
     return $this->hasMany(Experience::class);
 }
 
-
+public function notifications()
+{
+    return $this->hasMany(Notification::class);
+}
     /**
      * The attributes that are mass assignable.
      *

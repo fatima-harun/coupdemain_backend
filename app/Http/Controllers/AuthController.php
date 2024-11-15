@@ -236,5 +236,59 @@ class AuthController extends Controller
 
         return response()->json($candidats);
     }
+    public function getAllUser(){
+
+        $user = Auth::user();
+        $users = User::with('roles')->get();
+        return response()->json($users);
+
+    }
+    public function status($id)
+    {
+        // Rechercher l'utilisateur par ID
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'Utilisateur non trouvé'], 404);
+        }
+
+        // Inverser le statut
+        $user->status = !$user->status;
+        $user->save();
+
+        $message = $user->status ? 'Compte activé avec succès' : 'Compte désactivé avec succès';
+
+        return response()->json(['message' => $message, 'status' => $user->status], 200);
+    }
+    /**
+
+ */
+/**
+ * Récupérer tous les utilisateurs ayant le rôle de "demandeur_d_emploi".
+ */
+public function getEmployer()
+{
+    $jobSeekers = User::with('roles')
+        ->whereHas('roles', function($query) {
+            $query->where('name', 'demandeur_d_emploi');
+        })
+        ->get();
+
+    return response()->json($jobSeekers);
+}
+
+/**
+ * Récupérer tous les utilisateurs ayant le rôle de "employeur".
+ */
+public function getEmployeur()
+{
+    $employers = User::with('roles')
+        ->whereHas('roles', function($query) {
+            $query->where('name', 'employeur');
+        })
+        ->get();
+
+    return response()->json($employers);
+}
 
 }

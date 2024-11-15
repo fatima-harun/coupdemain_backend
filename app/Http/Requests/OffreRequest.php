@@ -79,7 +79,7 @@ class OffreRequest extends FormRequest
         $dateFin = $this->input('date_fin');
         $dateLimite = $this->input('date_limite');
 
-        // Vérifie que la date de fin est renseignée et qu'elle vient après la date de début
+        // Validation personnalisée : date de fin après la date de début.
         if ($dateFin && $dateFin < $dateDebut) {
             $validator->errors()->add(
                 'date_fin',
@@ -87,13 +87,11 @@ class OffreRequest extends FormRequest
             );
         }
 
-        // Vérifie que la date limite est renseignée et qu'elle vient après la date de début
-        // La première partie $dateLimite s'assure que le champ est rempli
-        // La deuxième partie $dateLimite < $dateDebut vérifie l'ordre des dates
-        if ($dateLimite && $dateLimite < $dateDebut) {
+        // Validation personnalisée : date limite avant la date de début.
+        if ($dateLimite && $dateLimite > $dateDebut) {
             $validator->errors()->add(
                 'date_limite',
-                'La date limite doit être après la date de début.'
+                'La date limite doit être avant la date de début.'
             );
         }
     });

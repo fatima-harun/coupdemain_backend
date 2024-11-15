@@ -28,8 +28,8 @@ class UpdateOffreRequest extends FormRequest
             'nombre_postes' => 'sometimes|numeric|max:9999',
             'horaire' => 'sometimes|string|max:6',
             'date_debut' => 'sometimes|date_format:Y-m-d',
-            'date_fin' => 'nullable|date_format:Y-m-d|after_or_equal:date_debut',
-            'date_limite' => 'nullable|date_format:Y-m-d|after_or_equal:date_debut',
+            'date_fin' => 'nullable|date_format:Y-m-d',
+            'date_limite' => 'nullable|date_format:Y-m-d',
             'profil' => 'sometimes|string|max:500',
            'service_ids' => 'sometimes|array|min:1',
          'service_ids.*' => 'distinct|exists:services,id',
@@ -83,11 +83,11 @@ class UpdateOffreRequest extends FormRequest
                 );
             }
 
-            // Validation personnalisée : date limite après la date de début.
-            if ($dateLimite && $dateLimite < $dateDebut) {
+            // Validation personnalisée : date limite avant la date de début.
+            if ($dateLimite && $dateLimite > $dateDebut) {
                 $validator->errors()->add(
                     'date_limite',
-                    'La date limite doit être après la date de début.'
+                    'La date limite doit être avant la date de début.'
                 );
             }
         });

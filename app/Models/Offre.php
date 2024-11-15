@@ -30,4 +30,9 @@ class Offre extends Model
     {
         return $this->belongsToMany(User::class,'user_service');
     }
+
+    public function candidatures()
+    {
+        return $this-> hasMany(Candidature::class);
+    }
 }

@@ -40,6 +40,11 @@ Route::get('/experiences', [ExperienceController::class, 'userexperience']); //l
 
 Route::post('/candidatures', [CandidatureController::class, 'store']);
 Route::get('/candidatures/{offreId}/offre', [CandidatureController::class, 'getCandidaturesByOffre']);
+Route::put('/candidatures/{id}/statut', [CandidatureController::class, 'updateStatut']);
+Route::get('/notifications', [CandidatureController::class, 'getNotifications']);
+Route::patch('notifications/{id}/lu', [CandidatureController::class, 'lu']);
+Route::get('/candidatures/recruter', [CandidatureController::class, 'getRecuter']);
+
 
 // route des visiteurs
 Route::post('/user/create', [AuthController::class, 'register']);
@@ -51,6 +56,12 @@ Route::post('/user/login', [AuthController::class, 'login']);
 Route::post('serviceuser', [ServiceUserController::class, 'store']);
 Route::get('employe', [AuthController::class, 'employe']);
 Route::get('/services/{serviceId}/user', [AuthController::class, 'getCandidatsByService']);
+Route::get('/users', [AuthController::class, 'getAllUser']);
+Route::put('/users/{id}/status', [AuthController::class, 'status']);
+Route::get('/users/employer', [AuthController::class, 'getEmployer']);
+Route::get('/users/employeur', [AuthController::class, 'getEmployeur']);
+
+
 
 Route::get('/services/{serviceId}/offres', [OffreController::class, 'getOffresByService']);
 Route::get('/offres/mesoffres', [OffreController::class, 'ShowMesOffres']);
@@ -62,3 +73,9 @@ Route::middleware('auth:api')->get('/profil', [AuthController::class, 'profil'])
 
 Route::get('candidats', [CandidatController::class, 'index']);
 Route::get('/candidats/{candidatId}', [CandidatController::class, 'show']);
+
+
+Route::get('users/{userId}/recommandations', [CommentaireController::class, 'show']);
+Route::post('/candidats/{userId}/comment', [CommentaireController::class, 'addComment']);
+Route::put('/commentaires/{commentId}', [CommentaireController::class, 'update']);
+Route::delete('/commentaires/{commentId}', [CommentaireController::class, 'destroy']);

@@ -22,15 +22,15 @@ class UpdateOffreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'description' => 'sometimes|string|max:200',
-            'lieu' => 'sometimes|string|max:20',
+            'description' => 'sometimes|string',
+            'lieu' => 'sometimes|string',
             'salaire' => 'sometimes|numeric|max:99999999',
-            'nombre_postes' => 'sometimes|numeric|max:9999',
-            'horaire' => 'sometimes|string|max:6',
+            'nombre_postes' => 'sometimes|numeric',
+            'horaire' => 'sometimes|string',
             'date_debut' => 'sometimes|date_format:Y-m-d',
             'date_fin' => 'nullable|date_format:Y-m-d',
             'date_limite' => 'nullable|date_format:Y-m-d',
-            'profil' => 'sometimes|string|max:500',
+            'profil' => 'sometimes|string',
            'service_ids' => 'sometimes|array|min:1',
          'service_ids.*' => 'distinct|exists:services,id',
 
@@ -41,10 +41,8 @@ class UpdateOffreRequest extends FormRequest
         return [
             'description.required' => 'La description est obligatoire.',
             'description.string' => 'La description doit être une chaîne de caractères.',
-            'description.max' => 'La description ne doit pas dépasser 200 caractères.',
             'lieu.required' => 'Le lieu est obligatoire.',
             'lieu.string' => 'Le lieu doit être une chaîne de caractères.',
-            'lieu.max' => 'Le lieu ne doit pas dépasser 20 caractères.',
             'salaire.required' => 'Le salaire est obligatoire.',
             'salaire.numeric' => 'Le salaire doit être un nombre.',
             'salaire.max' => 'Le salaire ne doit pas dépasser 99999999.',
@@ -53,14 +51,12 @@ class UpdateOffreRequest extends FormRequest
             'nombre_postes.max' => 'Le nombre de postes ne doit pas dépasser 9999.',
             'horaire.required' => 'L\'horaire est obligatoire.',
             'horaire.string' => 'L\'horaire doit être une chaîne de caractères.',
-            'horaire.max' => 'L\'horaire ne doit pas dépasser 6 caractères.',
             'date_debut.required' => 'La date de début est obligatoire.',
             'date_debut.date_format' => 'La date de début doit être au format YYYY-MM-DD.',
             'date_fin.date_format' => 'La date de fin doit être au format YYYY-MM-DD.',
             'date_limite.date_format' => 'La date limite doit être au format YYYY-MM-DD.',
             'profil.required' => 'Le profil est obligatoire.',
             'profil.string' => 'Le profil doit être une chaîne de caractères.',
-            'profil.max' => 'Le profil ne doit pas dépasser 500 caractères.',
             'service_id.required' => 'Le service est obligatoire.',
         ];
     }

@@ -8,16 +8,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
 class Commentaire extends Model
+
 {
-    use HasFactory;
-    protected $fillable = ['user_id', 'employer_id', 'description'];
-    public function user()
+    Use HasFactory;
+
+    protected $fillable = ['candidat_id', 'employer_id', 'description', 'note'];
+
+    // Relation avec le candidat
+    public function candidat()
     {
-        return $this->belongsTo(User::class, 'user_id'); // Candidat
+        return $this->belongsTo(User::class, 'candidat_id');
     }
 
+    // Relation avec l'employeur
     public function employer()
     {
-        return $this->belongsTo(User::class, 'employer_id'); // Employeur
+        return $this->belongsTo(User::class, 'employer_id');
     }
 }
+
+

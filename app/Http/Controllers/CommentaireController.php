@@ -11,118 +11,80 @@ class CommentaireController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        return Commentaire::all();
-    }
+     // Afficher les commentaires pour un candidat donné
+     public function index($candidat_id)
+     {
+         $commentaires = Commentaire::where('candidat_id', $candidat_id)
+             ->with('employer') // Inclure les informations de l'employeur
+             ->get();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function addComment(Request $request, $userId)
-    {
-        $employeurId = Auth::id(); //employeur connecté
+         return response()->json($commentaires);
+     }
 
-        $request->validate([
-            'description' => 'required|string'
-        ]);
+     // Ajouter un commentaire et une note
+     public function store(Request $request)
+     {
+         $request->validate([
+            //  'candidat_id' => 'required|exists:users,id',
+            //  'contenu' => 'required|string|max:255',
+            //  'note' => 'nullable|numeric|min:1|max:5',
+         ]);
 
-        // Vérifier si un commentaire existe déjà pour cet employeur et ce candidat
-        $existingComment = Commentaire::where('employer_id', $employeurId)->where('user_id', $userId)->first();
+         // Vérifier si l'employeur a déjà commenté ce candidat
+         $existing = Commentaire::where('candidat_id', $request->candidat_id)
+             ->where('employer_id', Auth::id())
+             ->first();
 
-        if ($existingComment) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Vous avez déjà commenté ce candidat.'
-            ], 403);
-        }
+         if ($existing) {
+             return response()->json(['message' => 'Vous avez déjà commenté ce candidat.'], 403);
+         }
 
-        // Créer un nouveau commentaire
-        $comment = Commentaire::create([
-            'user_id' => $userId,
-            'employer_id' => $employeurId,
-            'description' => $request->description,
-        ]);
+         Commentaire::create([
+             'candidat_id' => $request->candidat_id,
+             'employer_id' => Auth::id(),
+             'description' => $request->description,
+             'note' => $request->note,
+         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Commentaire ajouté avec succès.',
-            'comment' => $comment
-        ]);
-    }
+         return response()->json(['message' => 'Commentaire ajouté avec succès.']);
+     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($userId)
-    {
-        // Récupérer les commentaires destinés au candidat spécifique avec l'ID $userId
-        $recommendations = Commentaire::where('user_id', $userId) // Filtrer par le candidat ciblé
-            ->with('employer') // Charger les informations de l'employeur qui a fait le commentaire
-            ->get();
+     // Modifier un commentaire
+     public function update(Request $request, $id)
+     {
+         $request->validate([
+             'description' => 'required|string|max:255',
+             'note' => 'nullable|numeric|min:1|max:5',
+         ]);
 
-        return response()->json($recommendations);
-    }
+         $commentaire = Commentaire::findOrFail($id);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        // Trouver le commentaire par ID
-        $commentaire = Commentaire::find($id);
+         // Vérifier que l'utilisateur est l'auteur du commentaire
+         if ($commentaire->employer_id !== Auth::id()) {
+             return response()->json(['message' => 'Action non autorisée.'], 403);
+         }
 
-        // Vérifier si le commentaire existe
-        if(!$commentaire){
-            return response()->json(['message'=>'Commentaire non trouvé'], 404);
-        }
+         $commentaire->update([
+             'description' => $request->description,
+             'note' => $request->note,
+         ]);
 
-        // Vérifier que l'employeur connecté est celui qui a posté ce commentaire
-        $employeurId = Auth::id();
-        if ($commentaire->employer_id !== $employeurId) {
-            return response()->json(['message' => 'Vous n\'êtes pas autorisé à modifier ce commentaire.'], 403);
-        }
+         return response()->json(['message' => 'Commentaire modifié avec succès.']);
+     }
 
-        // Validation de la requête
-        $request->validate([
-            'description' => 'required|string|max:500', // Modifier la longueur ou d'autres contraintes selon le besoin
-        ]);
+     // Supprimer un commentaire
+     public function destroy($id)
+     {
+         $commentaire = Commentaire::findOrFail($id);
 
-        // Mettre à jour le commentaire
-        $commentaire->update([
-            'description' => $request->description,
-        ]);
+         // Vérifier que l'utilisateur est l'auteur du commentaire
+         if ($commentaire->employer_id !== Auth::id()) {
+             return response()->json(['message' => 'Action non autorisée.'], 403);
+         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Commentaire mis à jour avec succès.',
-            'comment' => $commentaire
-        ]);
-    }
+         $commentaire->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        // Trouver le commentaire par ID
-        $commentaire = Commentaire::find($id);
-
-        // Vérifier si le commentaire existe
-        if(!$commentaire){
-            return response()->json(['message'=>'Commentaire non trouvé'], 404);
-        }
-
-        // Vérifier que l'employeur connecté est celui qui a posté ce commentaire
-        $employeurId = Auth::id();
-        if ($commentaire->employer_id !== $employeurId) {
-            return response()->json(['message' => 'Vous n\'êtes pas autorisé à supprimer ce commentaire.'], 403);
-        }
-
-        // Supprimer le commentaire
-        $commentaire->delete();
-
-        return response()->json(['message' => 'Commentaire supprimé avec succès']);
-    }
+         return response()->json(['message' => 'Commentaire supprimé avec succès.']);
+     }
 }
 

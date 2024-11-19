@@ -11,7 +11,6 @@ class Candidature extends Model
 
     protected $fillable = ['user_id', 'offre_id', 'statut'];
 
-   
     public function offre() {
         return $this->belongsTo(Offre::class, 'offre_id');
     }

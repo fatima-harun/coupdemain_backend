@@ -206,7 +206,6 @@ class AuthController extends Controller
         return response()->json($user);
     }
 
-
     public function destroy(string $id){
          // Trouver l'utilisateur correspondant à l'ID
         $user = User::find($id);
@@ -215,7 +214,7 @@ class AuthController extends Controller
         }
 
         $user->delete();
-        return response()->json(['message' => 'Utilisateur supprimé avec succès']);
+        return response()->json(['message' => 'Votre compte a été supprimé avec succès']);
     }
 
     public function getCandidatsByService($serviceId)
@@ -243,23 +242,37 @@ class AuthController extends Controller
         return response()->json($users);
 
     }
-    public function status($id)
-    {
-        // Rechercher l'utilisateur par ID
-        $user = User::find($id);
+    public function status(Request $request, $id)
+{
+    // Rechercher l'utilisateur par ID
+    $user = User::find($id);
 
-        if (!$user) {
-            return response()->json(['message' => 'Utilisateur non trouvé'], 404);
-        }
-
-        // Inverser le statut
-        $user->status = !$user->status;
-        $user->save();
-
-        $message = $user->status ? 'Compte activé avec succès' : 'Compte désactivé avec succès';
-
-        return response()->json(['message' => $message, 'status' => $user->status], 200);
+    if (!$user) {
+        return response()->json(['message' => 'Utilisateur non trouvé'], 404);
     }
+
+    // Si le statut est manquant dans la base, initialiser à 1 (activé par défaut)
+    if (is_null($user->status)) {
+        $user->status = 1;
+    }
+
+    // Vérifie si un statut explicite est envoyé dans la requête
+    if ($request->has('status')) {
+        $status = (bool) $request->input('status'); // Convertir en booléen
+        $user->status = $status;
+    } else {
+        // Si aucun statut n'est fourni, inverse le statut actuel
+        $user->status = !$user->status;
+    }
+
+    // Sauvegarder les modifications
+    $user->save();
+
+    $message = $user->status ? 'Compte activé avec succès' : 'Compte désactivé avec succès';
+
+    return response()->json(['message' => $message, 'status' => $user->status], 200);
+}
+
     /**
 
  */

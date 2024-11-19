@@ -24,33 +24,59 @@ class CandidatureController extends Controller
      */
     public function store(Request $request)
 {
+    // Validation des données entrantes
     $request->validate([
         'offre_id' => 'required|exists:offres,id',
-        'statut' => 'required|in:en cours,rejeter,recruter',
+       'statut' => 'required|in:en cours,rejeter,recruter',
     ]);
 
-    // Créez la candidature
-    $candidature = Candidature::create([
-        'user_id' => auth()->user()->id,
-        'offre_id' => $request->offre_id,
-        'statut' => $request->statut,
-    ]);
+    // Récupérer l'utilisateur connecté
+    $user = auth()->user();
 
-    // Récupérez les détails de l'offre associée
-    $offre = $candidature->offre;
-
-    // Vérifiez si l'utilisateur a bien créé la candidature
-    if ($offre && $candidature->user_id == auth()->user()->id) {
-        // Si c'est l'utilisateur connecté, envoyez la notification
-        $message = 'Votre candidature pour l\'offre "' . $offre->description . '" a été enregistrée avec succès.';
-        $this->sendNotification(auth()->user(), $message);
+    // Vérifier si l'utilisateur est un employeur
+    if ($user->hasRole('employeur')) {
+        return response()->json([
+            'message' => 'Les employeurs ne peuvent pas postuler à des offres.',
+        ], 403);
     }
 
-    return response()->json([
-        'message' => 'Candidature enregistrée avec succès.',
-        'offre' => $offre
-    ], 201);
+    // Vérifier si l'utilisateur a déjà postulé à cette offre
+    $existingCandidature = Candidature::where('user_id', $user->id)
+        ->where('offre_id', $request->offre_id)
+        ->first();
+
+    if ($existingCandidature) {
+        return response()->json([
+            'message' => 'Vous avez déjà postulé à cette offre.',
+        ], 409);
+    }
+
+    // Créez la candidature
+    try {
+        // Récupération et création de la candidature
+        $candidature = Candidature::create([
+            'user_id' => $user->id,
+            'offre_id' => $request->offre_id,
+            'statut' => $request->statut,
+        ]);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'message' => 'Erreur de validation',
+            'errors' => $e->errors(), // Affiche les erreurs de validation
+        ], 422);
+    }
+
+   // Créer une notification pour l'utilisateur
+//    Notification::create([ 'user_id' => $request->user()->id,
+//    'message' => 'Vous avez postulé à l\'offre ' . $offre->titre, ]);
+
+//    // Créer une notification pour l'employeur
+//    Notification::create([ 'user_id' => $offre->employeur_id,
+//    'message' => $request->user()->name . ' a postulé pour l\'offre ' . $offre->titre, ]);
+
+
 }
+
 
     public function getNotifications()
 {
@@ -77,14 +103,6 @@ public function lu($id)
     ], 404);
 }
 
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
     public function getCandidaturesByOffre($offreId)
 
     {
@@ -108,6 +126,11 @@ public function lu($id)
     $candidature->statut = $request->input('statut');
     $candidature->save();
 
+    // Créer une notification pour l'utilisateur
+    Notification::create([ 'user_id' => $candidature->user_id,
+
+    'message' => 'Le statut de votre candidature pour ' . $candidature->offre->titre . ' a changé en ' . $candidature->statut, ]);
+
     // Retourne les candidatures mises à jour
     $candidatures = Candidature::all();
 
@@ -119,13 +142,16 @@ public function lu($id)
     /**
      *Récupère l'ensemble des utilisateurs qui ont été recrutés
      */
-    public function getRecuter()
-    {
-        $recruitedCount = Candidature::where('statut', 'recruter')->count();
+    public function getRecruter()
+{
+    $totalrecrute = Candidature::count();
+    $nombreRecrute = Candidature::where('statut', 'recruter')->count();
+    $nonrecrute = $totalrecrute - $nombreRecrute;  // Calcul des non-recrutés
 
-        return response()->json([
-            'recruited_count' => $recruitedCount
-        ]);
-    }
+    return response()->json([
+        'nombre_recrute' => $nombreRecrute,
+        'nombre_non_recrute' => $nonrecrute,
+    ]);
+}
 
 }

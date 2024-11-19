@@ -10,11 +10,17 @@ class Notification extends Model
 {
     use HasFactory;
 
-     protected $fillable = [
-       'message',
-     ];
+    protected $fillable = [ 'user_id', 'message', 'read', 'candidature_id', ];
 
-     public function user(){
+    public function user() {
+
         return $this->belongsTo(User::class);
+
+    }
+
+    public function candidature() {
+
+        return $this->belongsTo(Candidature::class);
+
     }
 }

@@ -83,44 +83,58 @@ class OffreController extends Controller
      * Update the specified resource in storage.
      */
     public function update(UpdateOffreRequest $request, string $id)
-    {
-        // Trouver l'offre par ID
-        $offre = Offre::find($id);
+{
+    // Trouver l'offre par ID
+    $offre = Offre::find($id);
 
-        if (!$offre) {
-            return response()->json(['message' => 'Offre non trouvée'], 404);
-        }
-        // Mettre à jour les autres champs de l'offre
-        $offre->update($request->except('service_ids')); // Exclure les services de la mise à jour directe
-        // Vérifier si des services sont fournis
-        if ($request->has('service_ids')) {
-            $newServiceIds = $request->input('service_ids', []); // Récupérer les services soumis
-            // Synchroniser les services avec ceux fournis par l'utilisateur
-            $offre->services()->sync($newServiceIds);
-            // sync() : Remplace les anciens services par les nouveaux
-        }
-        // Charger les relations pour renvoyer une réponse complète
-        $offre->load('services');
-
-        return response()->json(['data' => $offre], 200);
+    if (!$offre) {
+        return response()->json(['message' => 'Offre non trouvée'], 404);
     }
 
+    // Vérifier que l'utilisateur actuel est le propriétaire de l'offre
+    if ($offre->user_id !== auth()->id()) {
+        return response()->json(['message' => 'Vous n\'êtes pas autorisé à modifier cette offre'], 403);
+    }
+
+    // Mettre à jour les autres champs de l'offre
+    $offre->update($request->except('service_ids')); // Exclure les services de la mise à jour directe
+
+    // Vérifier si des services sont fournis
+    if ($request->has('service_ids')) {
+        $newServiceIds = $request->input('service_ids', []); // Récupérer les services soumis
+        // Synchroniser les services avec ceux fournis par l'utilisateur
+        $offre->services()->sync($newServiceIds);
+    }
+
+    // Charger les relations pour renvoyer une réponse complète
+    $offre->load('services');
+
+    return response()->json(['data' => $offre], 200);
+}
 
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
-    {
-        $offre = Offre::find($id);
-        if (!$offre) {
-            return response()->json(['message' => 'offre non trouvé'], 404);
-        }
+{
+    // Trouver l'offre par ID
+    $offre = Offre::find($id);
 
-        $offre->delete();
-        return response()->json(['message' => 'offre supprimée avec succès']);
+    if (!$offre) {
+        return response()->json(['message' => 'Offre non trouvée'], 404);
     }
 
+    // Vérifier que l'utilisateur actuel est le propriétaire de l'offre
+    if ($offre->user_id !== auth()->id()) {
+        return response()->json(['message' => 'Vous n\'êtes pas autorisé à supprimer cette offre'], 403);
+    }
+
+    // Supprimer l'offre
+    $offre->delete();
+
+    return response()->json(['message' => 'Offre supprimée avec succès']);
+}
 
     public function getOffresByService($serviceId)
     {
@@ -136,26 +150,24 @@ class OffreController extends Controller
 
         return response()->json($offres);
     }
+
     public function ShowMesOffres() {
         // Récupérer l'utilisateur connecté
-        $userId = Auth::id();
-        $user = Auth::user(); // Récupérer l'utilisateur connecté
+        $user = Auth::user();
 
         // Vérifier si l'utilisateur a le rôle d'employeur
         if (!$user->hasRole('employeur')) {
-            return response()->json(['message' => 'Accès interdit. Vous n\'avez pas le droit de voir ces offres.'], 403); // 403 : Accès interdit
+            return response()->json(['message' => 'Accès interdit. Vous n\'avez pas le droit de voir ces offres.'], 403);
         }
-
         // Récupérer toutes les offres créées par cet utilisateur avec leurs services associés
-        $offres = Offre::with('services')->where('user_id', $userId)->get();
-
+        $offres = Offre::with('services')->where('user_id', $user->id)->get();
+        // Vérifier si l'utilisateur a des offres
         if ($offres->isEmpty()) {
             return response()->json(['message' => 'Aucune offre trouvée'], 404);
         }
 
         return response()->json(['data' => $offres]);
     }
-
 
 }
 

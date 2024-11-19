@@ -23,17 +23,17 @@ class OffreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'description' => 'required|string|max:200',
-            // 'lieu' => 'required|string|max:20',
-            // 'salaire' => 'required|numeric|max:99999999',
-            // 'nombre_postes' => 'required|numeric|max:9999',
-            // 'horaire' => 'required|string|max:6',
-            // 'date_debut' => 'required|date_format:Y-m-d',
-            // 'date_fin' => 'nullable|date_format:Y-m-d',
-            // 'date_limite' => 'nullable|date_format:Y-m-d',
-            // 'profil' => 'required|string|max:500',
-            // 'service_ids' => 'required|array',
-            // 'service_ids.*' => 'exists:services,id',
+            'description' => 'required|string|max:200',
+            'lieu' => 'required|string|max:20',
+            'salaire' => 'required|numeric|max:99999999',
+            'nombre_postes' => 'required|numeric|max:9999',
+            'horaire' => 'required|string|max:6',
+            'date_debut' => 'required|date_format:Y-m-d',
+            'date_fin' => 'nullable|date_format:Y-m-d',
+            'date_limite' => 'nullable|date_format:Y-m-d',
+            'profil' => 'required|string|max:500',
+            'service_ids' => 'required|array',
+            'service_ids.*' => 'exists:services,id',
         ];
     }
 
@@ -45,26 +45,22 @@ class OffreRequest extends FormRequest
         return [
             'description.required' => 'La description est obligatoire.',
             'description.string' => 'La description doit être une chaîne de caractères.',
-            'description.max' => 'La description ne doit pas dépasser 200 caractères.',
             'lieu.required' => 'Le lieu est obligatoire.',
             'lieu.string' => 'Le lieu doit être une chaîne de caractères.',
             'lieu.max' => 'Le lieu ne doit pas dépasser 20 caractères.',
             'salaire.required' => 'Le salaire est obligatoire.',
             'salaire.numeric' => 'Le salaire doit être un nombre.',
-            'salaire.max' => 'Le salaire ne doit pas dépasser 99999999.',
             'nombre_postes.required' => 'Le nombre de postes est obligatoire.',
             'nombre_postes.numeric' => 'Le nombre de postes doit être un nombre.',
             'nombre_postes.max' => 'Le nombre de postes ne doit pas dépasser 9999.',
             'horaire.required' => 'L\'horaire est obligatoire.',
             'horaire.string' => 'L\'horaire doit être une chaîne de caractères.',
-            'horaire.max' => 'L\'horaire ne doit pas dépasser 6 caractères.',
             'date_debut.required' => 'La date de début est obligatoire.',
             'date_debut.date_format' => 'La date de début doit être au format YYYY-MM-DD.',
             'date_fin.date_format' => 'La date de fin doit être au format YYYY-MM-DD.',
             'date_limite.date_format' => 'La date limite doit être au format YYYY-MM-DD.',
             'profil.required' => 'Le profil est obligatoire.',
             'profil.string' => 'Le profil doit être une chaîne de caractères.',
-            'profil.max' => 'Le profil ne doit pas dépasser 500 caractères.',
             'service_id.required' => 'Le service est obligatoire.',
         ];
     }

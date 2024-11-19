@@ -13,7 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-          'cors'=>HandleCors::class,
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'auth.jwt' => \App\Http\Middleware\JwtMiddleware::class,
+            'check.account.status'=>\App\Http\Middleware\CheckAccountStatus::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
